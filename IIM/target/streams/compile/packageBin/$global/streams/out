@@ -1,0 +1,19 @@
+[0m[[0m[0minfo[0m] [0m[0mPackaging /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/simple-project_2.10-1.0.jar ...[0m
+[0m[[0m[0mdebug[0m] [0m[0mInput file mappings:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/krishna/AppTest/Logger$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com/krishna/AppTest/Logger$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/krishna/AppTest/SimpleApp$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com/krishna/AppTest/SimpleApp$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/krishna[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com/krishna[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/krishna/AppTest[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com/krishna/AppTest[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/krishna/AppTest/Logger.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com/krishna/AppTest/Logger.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Log4j.properties[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/Log4j.properties[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/krishna/AppTest/SimpleApp.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/BDA03/SBT_Code/IIM/target/scala-2.10/classes/com/krishna/AppTest/SimpleApp.class[0m
+[0m[[0m[0minfo[0m] [0m[0mDone packaging.[0m
