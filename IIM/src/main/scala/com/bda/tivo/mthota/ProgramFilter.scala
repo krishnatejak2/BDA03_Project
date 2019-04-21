@@ -25,6 +25,7 @@ object ProgramFilter {
   val getWeekoftheYear = udf[String, String](commonUtils.getWeekoftheYear)
   val getAirDate = udf[String, String](commonUtils.getAirDate)
   val getAirTime = udf[String, String](commonUtils.getAirTime)
+  val getAirYear = udf[Int, String](commonUtils.getYear)
   val getEventEndDate = udf[String, String,String](commonUtils.getEventEndDate)
 
   def main(args: Array[String]) {
@@ -51,6 +52,11 @@ object ProgramFilter {
     var final_df = sqlContext.sql("SELECT * FROM PROGRAM WHERE EVENT_DATE >= '2018-01-01' AND EVENT_DATE!='NULL'")
     final_df.show(5)
     println("========= "+final_df.count())
+    var err_df = sqlContext.sql("SELECT * FROM PROGRAM WHERE  EVENT_DATE='NULL' AND (MASTER_TITLE != 'NULL' AND TRIM(MASTER_TITLE) != '') AND (EPISODE_TITLE  IS NOT NULL AND EPISODE_TITLE != 'NULL' AND TRIM(EPISODE_TITLE) != '') AND RELEASE_YEAR = 2018 AND CATEGORY_ID IN (3,5,8)")
+    err_df.show(25)
+    err_df.repartition(1).write.mode(saveMode = "Overwrite")
+      .option("header", "true").parquet(commonUtils.partitioned_path_program_data+"toimpute/")
+    println(err_df.count())
 
     final_df=final_df.withColumn("hour",getHouroftheDay($"EVENT_DATE"))
                       .withColumn("day",getDayoftheMonth($"EVENT_DATE"))
@@ -66,6 +72,7 @@ object ProgramFilter {
                       .withColumn("airStartTime",getAirTime($"EVENT_DATE"))
                       .withColumn("airEndDate",getAirDate(getEventEndDate($"EVENT_DATE",$"RUNTIME")))
                       .withColumn("airEndTime",getAirTime(getEventEndDate($"EVENT_DATE",$"RUNTIME")))
+                      .withColumn("AirYear",getAirYear($"EVENT_DATE"))
 
 
     final_df.show()

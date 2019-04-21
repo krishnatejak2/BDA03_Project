@@ -34,6 +34,9 @@ object commonUtils{
   def getMonthoftheYear(dateString:String): Int ={
     return MY_DATETIME_FORMAT.parseDateTime(dateString).toString("MM").toInt
   }
+  def getYear(dateString:String): Int ={
+    return MY_DATETIME_FORMAT.parseDateTime(dateString).toString("yyyy").toInt
+  }
 
   def getWeekoftheYear(dateString:String):String={
 
@@ -140,6 +143,7 @@ object commonUtils{
     println("getAirStartDate : ",getAirDate(dateString))
     println("getAirStartTime : ",getAirTime(dateString))
     println("getEventEndDate : ",getEventEndDate(dateString,"3600"))
+    println("getEventEndDate : ",getYear(dateString))
   }
 
 }
