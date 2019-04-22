@@ -1,14 +1,7 @@
 package com.bda.tivo.mthota
 
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
-import org.apache.spark.SparkConf
 import com.bda.tivo.utils.commonUtils
-import org.apache.spark.sql.functions._
-
-import org.apache.log4j.{Level, LogManager, PropertyConfigurator}
-import org.apache.spark._
-import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
 
 
 
@@ -24,7 +17,6 @@ object RepartitionData {
 	  val sc = new SparkContext(conf)	// new SparkContext
 
 	  val sqlContext = new org.apache.spark.sql.SQLContext(sc) // SQLContext
-    import sqlContext.implicits._
 
     val raw_watch_data = sqlContext.read.parquet(commonUtils.raw_path_channel_data)
     val raw_device = sqlContext.read.parquet(commonUtils.raw_path_device_data)

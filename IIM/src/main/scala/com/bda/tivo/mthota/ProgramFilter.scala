@@ -1,19 +1,14 @@
 package com.bda.tivo.mthota
 
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
-import org.apache.spark.SparkConf
 import com.bda.tivo.utils.commonUtils
-import com.bda.tivo.utils.commonUtils.getEventEndDate
-import org.apache.log4j.{Level, LogManager, PropertyConfigurator}
-import org.apache.spark._
-import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.functions.udf
 
 
 
 
 object ProgramFilter {
+
   val getHouroftheDay = udf[Int, String](commonUtils.getHouroftheDay)
   val getDayoftheMonth = udf[Int, String](commonUtils.getDayoftheMonth)
   val getDayOfWeek = udf[Int, String](commonUtils.getDayOfWeek)
@@ -48,6 +43,28 @@ object ProgramFilter {
     raw_campaign_program_data.printSchema()
     println(raw_campaign_program_data.count())
 
+    val raw_campaign_data = sqlContext.read.parquet(commonUtils.raw_path_campaign_data)
+    raw_campaign_data.registerTempTable("CAMPAIGN")
+    raw_campaign_data.printSchema()
+
+    var campaign_df = sqlContext.sql("SELECT DISTINCT cp.PROGRAM_ID, EFFECTIVE_DATE,EVENT_DATE,RUNTIME   FROM CAMPAIGN_PROGRAM cp JOIN CAMPAIGN c ON c.PROGRAM_ID = cp.PROGRAM_ID WHERE TIME_ZONE = 'ET'")
+    campaign_df.show()
+    campaign_df = campaign_df.filter($"EVENT_DATE".isNotNull)
+    campaign_df.show()
+    campaign_df =  campaign_df.withColumn("EVENT_END_DATE",getEventEndDate($"EVENT_DATE",$"RUNTIME"))
+    campaign_df.printSchema()
+    campaign_df.show()
+    campaign_df.registerTempTable("AD_CAMPAIGNS")
+
+    campaign_df = sqlContext.sql("SELECT PROGRAM_ID,count(*) as total_ad_slots,SUM(CASE WHEN AD_SLOTS = 'RR' THEN 1 ELSE 0 END) as RR_slots, SUM(CASE WHEN AD_SLOTS = 'WN' THEN 1 ELSE 0 END) as WN_slots,SUM(CASE WHEN AD_SLOTS = 'VOD' THEN 1 ELSE 0 END)  as VOD_slots FROM (SELECT c.PROGRAM_ID, CASE WHEN c.EFFECTIVE_DATE < EVENT_DATE THEN 'RR' WHEN c.EFFECTIVE_DATE > EVENT_END_DATE THEN 'VOD' ELSE 'WN' END AS AD_SLOTS FROM AD_CAMPAIGNS c) t GROUP BY PROGRAM_ID")
+    println(campaign_df.select("PROGRAM_ID").distinct().count())
+    campaign_df.show()
+    campaign_df.registerTempTable("AD_CAMPAIGNS")
+
+
+
+
+
 
     var final_df = sqlContext.sql("SELECT * FROM PROGRAM WHERE EVENT_DATE >= '2018-01-01' AND EVENT_DATE!='NULL'")
     final_df.show(5)
@@ -79,7 +96,7 @@ object ProgramFilter {
 
     final_df.persist()
     final_df.registerTempTable("PROGRAM")
-    final_df = sqlContext.sql("SELECT p.*,CASE WHEN ISNULL(c.PROGRAM_ID) THEN 0 ELSE 1 END AS is_tivo_ads_promoted FROM PROGRAM p LEFT JOIN CAMPAIGN_PROGRAM c ON c.PROGRAM_ID = p.PROGRAM_ID")
+    final_df = sqlContext.sql("SELECT p.*,CASE WHEN ISNULL(c.PROGRAM_ID) THEN 0 ELSE 1 END AS is_tivo_ads_promoted,CASE WHEN ISNULL(total_ad_slots) THEN 0 ELSE total_ad_slots END  as total_ad_slots,CASE WHEN ISNULL(RR_slots) THEN 0 ELSE RR_slots END  as RR_slots,CASE WHEN ISNULL(VOD_slots) THEN 0 ELSE VOD_slots END  as VOD_slots,CASE WHEN ISNULL(WN_slots) THEN 0 ELSE WN_slots END  as WN_slots  FROM PROGRAM p LEFT JOIN AD_CAMPAIGNS c ON c.PROGRAM_ID = p.PROGRAM_ID")
     println(final_df.count())
     final_df.show()
     final_df.repartition(1)

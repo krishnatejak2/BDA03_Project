@@ -11,7 +11,7 @@ object commonUtils{
   val raw_path_campaign_program_data = "/Users/mthota/Dropbox/Data/Data/CAMPAIGN_PROGRAM/parquet/"
   val raw_path_device_data = "/user/bda03tivo/Device/"
   val raw_path_ads_data=""
-  val raw_path_campaign_data=""
+  val raw_path_campaign_data="/Users/mthota/Dropbox/Data/Data/Campaign/"
 
   val partitioned_path_channel_data="/user/bda03tivo/partitioned/channel/"
   val partitioned_path_ads_data=""
@@ -123,7 +123,12 @@ object commonUtils{
     return dateString.substring(0,10)
   }
   def getEventEndDate(dateString:String,runtime:String):String={
-    MY_DATETIME_FORMAT.parseDateTime(dateString).plusSeconds(runtime.toInt).toString(MY_DATETIME_PATTERN)
+    try{
+    MY_DATETIME_FORMAT.parseDateTime(dateString).plusSeconds(runtime.toInt).toString(MY_DATETIME_PATTERN)}
+    catch
+      {
+        case e: Exception =>  DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(dateString).plusSeconds(runtime.toInt).toString("yyyy-MM-dd HH:mm:ss")
+      }
   }
   def getAirTime(dateString:String):String={
     return dateString.substring(11,16)
