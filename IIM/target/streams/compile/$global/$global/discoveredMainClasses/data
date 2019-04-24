@@ -1,1 +1,1 @@
-["com.krishna.AppTest.SimpleApp"]
+["com.bda.tivo.krishna.ChannelPartition","com.bda.tivo.mthota.ProgramFilter","com.bda.tivo.mthota.RepartitionData","com.bda.tivo.utils.commonUtils","com.krishna.AppTest.SimpleApp"]

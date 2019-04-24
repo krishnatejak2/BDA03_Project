@@ -6,8 +6,8 @@ import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 object commonUtils{
 
-  val raw_path_channel_data = "/user/bda03tivo/channel/2018-01-01/"
-  val raw_path_program_data = "/Users/mthota/Dropbox/Data/Data/program/CorrectFile/parquetwithHeaders/"
+  val raw_path_channel_data = "/user/bda03tivo/channel/*"
+  val raw_path_program_data = "/user/bda03tivo/partitioned/program/CorrectFile2018/parquet/"
   val raw_path_campaign_program_data = "/Users/mthota/Dropbox/Data/Data/CAMPAIGN_PROGRAM/parquet/"
   val raw_path_device_data = "/user/bda03tivo/Device/"
   val raw_path_ads_data=""

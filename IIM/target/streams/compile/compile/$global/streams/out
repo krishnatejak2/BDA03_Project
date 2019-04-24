@@ -1,4 +1,8 @@
-[0m[[0m[31merror[0m] [0m[0m/Users/krishna/BDA03/SBT_Code/IIM/src/main/scala/SimpleApp.scala:138:2: not found: value CHANNEL_JAN_SELECT[0m
-[0m[[0m[31merror[0m] [0m[0m	CHANNEL_JAN_SELECT.registerTempTable("CHANNEL_JAN_SELECT_TABLE") // register as temptable[0m
-[0m[[0m[31merror[0m] [0m[0m	^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.ToString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.ToString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.ToString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
+[0m[[0m[33mwarn[0m] [0m[0m7 warnings found[0m
