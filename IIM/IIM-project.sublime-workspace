@@ -8,53 +8,30 @@
 	"buffers":
 	[
 		{
-			"file": "/Users/krishna/BDA03/Docker-setup/docker-compose.yml",
+			"file": "src/main/scala/com/bda/tivo/mthota/ProgramFilter.scala",
 			"settings":
 			{
-				"buffer_size": 1957,
-				"encoding": "UTF-8",
+				"buffer_size": 4662,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "docker run -p 7077:7077 -p 8080:8080 --privileged=true -v $PWD/logs:/logs -v $PWD/notebook:/notebook -e ZEPPELIN_NOTEBOOK_DIR='/notebook' -e ZEPPELIN_LOG_DIR='/logs' -d apache/zeppelin:0.8.1 /usr/local/zeppelin/bin/zeppelin.sh\n\ndocker run -p 8080:8080 --rm \\\n-v $PWD/logs:/logs \\\n-v $PWD/notebook:/notebook \\\n-e ZEPPELIN_LOG_DIR='/logs' \\\n-e ZEPPELIN_NOTEBOOK_DIR='/notebook' \\\n--name zeppelin apache/zeppelin:0.8.1\n\n  zeppelin:\n    image: apache/zeppelin:0.8.1\n    container_name: zeppelin\n    hostname: zeppel\n    environment:\n      ZEPPELIN_LOG_DIR: /logs\n      ZEPPELIN_NOTEBOOK_DIR: /notebook\n      #MASTER: spark://cdh:7077\n      #command: /usr/local/zeppelin/bin/zeppelin.sh\n    depends_on:\n      - cdh\n    ports:\n      - 8099:8080\n      - 8090:8090\n      - 8091:8091\n    volumes:\n      - /Users/krishna/BDA03/AllSpark_Workspace:/notebook\n    extra_hosts:\n      - \"quickstart.cloudera:172.18.0.2\"\n      - \"sparkly:172.18.0.3\"\n    tty: true\n    privileged: true",
+			"file": "src/main/scala/com/bda/tivo/utils/commonUtils.scala",
 			"settings":
 			{
-				"buffer_size": 967,
+				"buffer_size": 6624,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "Objective :\n\tPart 1:\tTo predict if a TV show is going to be a hit or not - mostly a regression fit\n\tPart 2: Optimal ad-campaign strategy to maximize the revenues from ads\n\nhow to data wrangle with the available data?\nPart1:\n\tThe session info from all the devices is in Activity Watch (AW)\n\tBesides this? any other info needed??\n\tanything missing from the understang?\n\tanythong need to be added?\n\n\nFor Part 1: We have the following variety of info\n\t1. Program data - no headers in the csv\n\t2. Campaign data \n\t3. Device data\n\t4. Session data\n\nCampaign effective start&end vs order start&end\nsolid join column to source not made!\nTimezone = null?\n\n\naws s3 cp --recursive s3://academic-project/blr_data/metadata /BDA03/Data\n\n\nscp -r /Users/krishna/Dropbox/Data/Data/CAMPAIGN_PROGRAM 172.21.100.193:/root/DN/projects/bda03tivo/Metadata/CAMPAIGN_PROGRAM\n\n\nselect PARENT_PROGRAM_ID,MASTER_TITLE,PROGRAM_ID,EPISODE_NUMBER,EVENT_DATE from Program_view where EVENT_DATE > '2016-12-31' and PARENT_PROGRAM_ID is not null order by 1,5 desc\n\t- 40301 - episodes in 2017\n\n\nserver \nhost 172.21.100.193\t\nuser bda03tivo\npass tivo@321\n\n\nscala version - 2.10.5\nspark version - 1.6.2\n\n",
-			"file": "/Users/krishna/BDA03/Final-Project/Discussion_text",
-			"file_size": 1054,
-			"file_write_time": 131976587340059578,
+			"contents": "package com.bda.tivo.krishna\n\nimport org.apache.spark.SparkContext\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.SparkConf\n\nimport org.apache.log4j.{Level, LogManager, PropertyConfigurator}\nimport org.apache.spark._\nimport org.apache.spark.rdd.RDD\n\nobject Logger{\n  def methodName() = Thread.currentThread().getStackTrace()(3).getMethodName\n  val log = LogManager.getRootLogger\n  val header = \"Your project Description\"\n  def logInfo(msg: String= \"\")= if(msg.length > 0) log.info(String.format(\"(%s) - %s\", methodName(), msg)) else log.info(\"\")\n  def logDebug(msg: String= \"\")= if(msg.length > 0) log.debug(String.format(\"(%s) - %s\", methodName(), msg)) else log.debug(\"\")\n  def logWarn(msg: String= \"\")= if(msg.length > 0) log.warn(String.format(\"(%s) - %s\", methodName(), msg)) else log.warn(\"\")\n  def logError(msg: String= \"\")= if(msg.length > 0) log.error(String.format(\"(%s) - %s\", methodName(), msg)) else log.error(\"\")\n  def title = log.warn(header)\n}\n\n\nobject ChannelCalculation {\n\n  def main(args: Array[String]) {\n\n  \tLogger.logInfo(\"Successfully created Spark Configuration Object\")\n\t/********* SPark Config ********/\n    val conf = new SparkConf().setAppName(\"Simple Application\")\t//new configuration\n\tval sc = new SparkContext(conf)\t// new SparkContext\n\tLogger.logInfo(\"Successfully created Spark Context\")\n\tval sqlContext = new org.apache.spark.sql.SQLContext(sc) // SQLContext\n\n    import sqlContext.implicits._ // changes RDD to DF\n\n\t   Logger.logInfo(\"Reading the Channel file for January...\")\n    val channel_jan_location = \"/user/bda03tivo/channel/*\" // HDFS location\n    val channel_jan_data = sqlContext.read.load(channel_jan_location)\n    Logger.logInfo(\"Reading the Channel file for January...Done\")\n    \n    Logger.logInfo(\"Reading the Program file...\")\n    val program_location = \"/user/bda03tivo/Metadata/Program/Parquet/part-00000-17ccaa90-2d2e-4467-8920-56d97a96c4b8-c000.snappy.parquet\"\n\n   /****** Spark Read******/\n    val program_data = sqlContext.read.parquet(program_location)\n    Logger.logInfo(\"Reading the Program file...Done\")\n\n    channel_jan_data.registerTempTable(\"CHANNEL_JAN\") // register as temptable\n    program_data.registerTempTable(\"PROGRAM\") // register as temptable\n    \n    //print schema\n    println( \"Schema of CHANNEL Data: \" )\n    channel_jan_data.printSchema()\n\n    println( \"Schema of PROGRAM Data: \" )\n    program_data.printSchema()\n    \n    //read data from temptable to dataframe\n    \n\t//val read_data = program_data\n\t//.select($\"PROGRAM_ID\",$\"RUNTIME\",$\"PARENT_PROGRAM_ID\")\n\t//.withColumn(\"PARENT_PROGRAM_ID\", when($\"PARENT_PROGRAM_ID\" ==='NULL', 0).otherwise($\"PARENT_PROGRAM_ID\"))\n\t//.filter($\"PARENT_PROGRAM_ID\" !== \"NULL\")\n\n    // read_data.registerTempTable(\"FINAL_DATA\") // register as temptable\n    \n    //show the table data\n    //println( \"Show top records : \" )\n    /****** Spark SQL*********/\n    Logger.logInfo(\"Selecting columns from Program...\")\n    val PROGRAM_SELECT = sqlContext.sql(\n    \t\"\"\"\n    \tselect \n\t    P.PROGRAM_ID,\n\t    P.PARENT_PROGRAM_ID,\n\t    P.MASTER_TITLE,\n\t    P.CATEGORY_ID,\n\t    P.SUBCATEGORY_ID,\n\t    P.RELEASE_YEAR,\n\t    P.SERIES_MASTER_YN,\n\t    P.RUNTIME,\n\t    P.EVENT_DATE,\n\t    P.EPISODE_NUMBER,\n\t    P.EPISODE_TITLE,\n\t    P.ORIGINAL_ADT\n\t    from \n    \t\tPROGRAM P \n    \twhere\n    \tEVENT_DATE >= '2017-12-31' and \n\t    EVENT_DATE <= '2019-01-01'  \n\t    -- and PARENT_PROGRAM_ID not in  ('NULL')\n\n    \t\"\"\")\n    Logger.logInfo(\"Selecting columns from Program...Done\")\n    PROGRAM_SELECT.registerTempTable(\"PROGRAM_SELECT_TABLE\") // register as temptable\n\n\t//println( \"Show top records : CHANNEL_JAN\" )\n    //sqlContext.sql(\"select * from CHANNEL_JAN\").show()\n\n    //println( \"Show top records : \" )\n    Logger.logInfo(\"Selecting columns from Channel...\")\n    val CHANNEL_JAN_SELECT = sqlContext.sql(\n    \t\"\"\"\n\t\t select *, \n\t\t CASE WHEN SURFTIME <= 300 then 1 else 0 end as SURFTIME_VIEWER\n\t\t from \n\t    \tCHANNEL_JAN\n\t    where\n\t    \tEVENT_DATE >= 20171231 and \n\t\t    EVENT_DATE <= 20190101\n\n    \t\"\"\")\n\t\n\t//import org.apache.spark.sql.expressions.Window\n\t//val surf_part = Window.partitionBy('PROGRAM_ID).orderBy('SURFTIME_VIEWER.desc)\n\t//val CHANNEL_JAN_SELECT = CHANNEL_JAN_SELECT_FIRST.select('*, sum('SURFTIME_VIEWER) over surf_part as \"NO_OF_SURF_VIEWERS\")\n\n    Logger.logInfo(\"Selecting columns from Channel...Done\")\n\tCHANNEL_JAN_SELECT.registerTempTable(\"CHANNEL_JAN_SELECT_TABLE\") // register as temptable\n\n\t//print sql output\n\tprintln( \"ACTIVITY_WATCH_INFO: \" )\n    sqlContext.sql(\"\"\"\n    \tSELECT * from CHANNEL_JAN_SELECT_TABLE\n    \t\"\"\").show()\n\n\t//print sql output\n\tprintln( \"PROGRAM_INFO: \" )\n    sqlContext.sql(\"\"\"\n    \tSELECT 'PROGRAM_ALL' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from PROGRAM\n    \tunion\n    \tSELECT 'PROGRAM_2018' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from PROGRAM_SELECT_TABLE\n    \t\"\"\").show()\n\n\t//print sql output\n\tprintln( \"CHANNEL_INFO : \" )\n    sqlContext.sql(\"\"\"\n    \tSELECT 'WATCH_ALL' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from CHANNEL_JAN\n    \tunion\n    \tSELECT 'WATCH_2018' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from CHANNEL_JAN_SELECT_TABLE\n    \t\"\"\").show()\n    \n    //joining the data to form some calculated columns\n\t//println( \"Show top records for JOIN: \" )\n    Logger.logInfo(\"Selecting columns from JOIN...\")\n    val JOIN_DATA_SELECT = sqlContext.sql(\n    \t\"\"\"\n    \tselect \n\t\t    P.PROGRAM_ID,\n\t\t    P.PARENT_PROGRAM_ID,\n\t\t    P.MASTER_TITLE,\n\t\t    P.CATEGORY_ID,\n\t\t    P.SUBCATEGORY_ID,\n\t\t    P.RELEASE_YEAR,\n\t\t    P.SERIES_MASTER_YN,\n\t\t    P.RUNTIME,\n\t\t    P.EVENT_DATE,\n\t\t    P.EPISODE_NUMBER,\n\t\t    P.EPISODE_TITLE,\n\t\t    P.ORIGINAL_ADT,\n\n\t\t    sum(CH.SURFTIME_VIEWER) as NO_OF_SURF_VIEWERS,\n\t    \tsum(case when CH.DURATION > 0.7*P.RUNTIME then 1 else 0 end) as NO_OF_FULL_SHOW_VIEWERS,\n\t    \tcount(distinct CH.SK_DEVICE_ID) as NO_WATCHERS,\n\t    \tavg(CH.SURFTIME) as AVG_SURF_TIME,\n\t    \tmin(CH.EVENT_DATE) as MIN_EVENT_DATE,\n\t\t\tmax(CH.EVENT_DATE) as MAX_EVENT_DATE,\n\t\t\tavg(CH.DURATION)/3600 as AVG_DURATION_HRS\n\n\t    from \n\t    \tPROGRAM_SELECT_TABLE P\n\t    \tjoin\n    \t\tCHANNEL_JAN_SELECT_TABLE CH\n    \t\ton \n    \t\tP.PROGRAM_ID = CH.PROGRAM_ID and\n    \t\tcast(P.EVENT_DATE as DATE) = CH.EVENT_DATE \n    \tgroup by \n\t    \tP.PROGRAM_ID,\n\t\t    P.PARENT_PROGRAM_ID,\n\t\t    P.MASTER_TITLE,\n\t\t    P.CATEGORY_ID,\n\t\t    P.SUBCATEGORY_ID,\n\t\t    P.RELEASE_YEAR,\n\t\t    P.SERIES_MASTER_YN,\n\t\t    P.RUNTIME,\n\t\t    P.EVENT_DATE,\n\t\t    P.EPISODE_NUMBER,\n\t\t    P.EPISODE_TITLE,\n\t\t    P.ORIGINAL_ADT\n\t    \"\"\")\n    Logger.logInfo(\"Selecting columns from JOIN...Done\")\n    JOIN_DATA_SELECT.registerTempTable(\"JOIN_DATA_SELECT_TABLE\") // register as temptable\n\n    \n    println( \"Show top records - JOIN_INFO : \" )\n    sqlContext.sql(\n    \t\"\"\"\n    \tselect \n    \t\tPROGRAM_ID,\n    \t\tPARENT_PROGRAM_ID,\n    \t\tMASTER_TITLE,\n    \t\tCATEGORY_ID,\n    \t\tSUBCATEGORY_ID\n    \t\tRUNTIME,\n    \t\tORIGINAL_ADT,\n    \t\tNO_OF_SURF_VIEWERS,\n    \t\tNO_OF_FULL_SHOW_VIEWERS,\n    \t\tNO_WATCHERS,\n    \t\tAVG_SURF_TIME,\n    \t\tMIN_EVENT_DATE,\n    \t\tMAX_EVENT_DATE,\n    \t\tAVG_DURATION_HRS\n    \tfrom \n    \t\tJOIN_DATA_SELECT_TABLE \n    \torder by \n    \t\tNO_WATCHERS DESC\n    \t\"\"\").show()\n\n\n    sqlContext.sql(\n    \t\"\"\"\n    \tselect \n    \t\t*\n    \tfrom \n    \t\tJOIN_DATA_SELECT_TABLE\n    \t\"\"\").coalesce(1).write.format(\"parquet\").mode(\"append\").save(\"hdfs://bigdatalab/user/bda03tivo/Output/JOIN_RESULT_ALL_3.parquet\")\n\t\n\n\n    println( \"JOIN_PROGRAM_CHANNEL_INFO : \" )\n    sqlContext.sql(\"\"\"\n    \tselect 'TOTAL_RECORD_COUNT' as TYPE,count(*) as COUNT from JOIN_DATA_SELECT_TABLE\n    \tunion\n    \tselect 'DISTINCT_PROGRAM_AFTER_JOIN' as TYPE,count(distinct PROGRAM_ID) as COUNT from JOIN_DATA_SELECT_TABLE\n    \t\"\"\").show()\n\n\n    println( \"DIFFERENT CHANNEL INFO : \" )\n    sqlContext.sql(\"\"\"\n    \tselect DISTINCT CH.PROGRAM_ID \n    \tfrom CHANNEL_JAN_SELECT_TABLE CH \n    \tleft join PROGRAM_SELECT_TABLE P\n    \ton CH.PROGRAM_ID = P.PROGRAM_ID\n    \twhere P.PROGRAM_ID is null\n    \t\"\"\").show()\n\n    println( \"DIFFERENT CHANNEL INFO - COUNT : \" )\n    sqlContext.sql(\"\"\"\n    \tselect count(DISTINCT CH.PROGRAM_ID)\n    \tfrom CHANNEL_JAN_SELECT_TABLE CH \n    \tleft join PROGRAM_SELECT_TABLE P\n    \ton CH.PROGRAM_ID = P.PROGRAM_ID\n    \twhere P.PROGRAM_ID is null\n    \t\"\"\").show()\n\n    //read_data.write.format.csv(\"ads.csv\")\n    //read_data.write.format(\"com.databricks.spark.csv\").save(\"/user/bda03tivo/ads_feb_test/mydata.csv\")\n    Logger.logInfo(\"Stopping SparkContext...\")\n    sc.stop()\n    Logger.logInfo(\"Stopping SparkContext...Done\")\n  }\n}",
+			"file": "src/main/scala/com/bda/tivo/krishna/SimpleApp.scala",
+			"file_size": 8477,
+			"file_write_time": 132004006260683119,
 			"settings":
 			{
-				"buffer_size": 1163,
-				"encoding": "UTF-8",
-				"line_ending": "Unix",
-				"name": "Objective :"
-			}
-		},
-		{
-			"contents": "Docker images needed :\n\tdocker pull cloudera/quickstart\n\tdocker pull jupyter/all-spark-notebook\n\nDocker Network: - not necessary, can be defaulted as well\n\tdocker network create BDA-net\n\nHadoop Docker :\n\tdocker run --hostname=quickstart.cloudera --rm --privileged=true -ti --net BDA-net -v /Users/krishna/BDA03/CDH-Docker/:/src --publish-all=true -p 8088:8888 -p 9083:9083 -p 10000:10000 -p 10002:10002 -p 50070:50070 -p 8020:8020 -p 50010:50010 cloudera/quickstart /usr/bin/docker-quickstart\n\n\tHue : 0.0.0.0:8088\n\thdfs : 0.0.0.0:50070\n\thive : 0.0.0.0:10002/10000\n\n\tAssignment 3 : start\n\n\t\tHIVE commands:\n\n\t\tcreate database retaildb;\n\t\tuse retaildb;\n\t\tcreate table retail(InvoiceNo STRING, StockCode STRING, Description STRING, Quantity INT, InvoiceDate TIMESTAMP, UnitPrice DOUBLE, CustomerID int, Country STRING )\n\t\trow format delimited\n\t\tfields terminated by ','\n\t\tstored as TEXTFILE;\n\t\tLOAD DATA LOCAL INPATH '/src/Online_Retail.csv' OVERWRITE INTO TABLE retail;\n\n\n\t\thadoop fs -mkdir /Assignment3\n\t\thadoop fs -mkdir /Assignment3/data\n\t\thadoop fs -copyFromLocal /src/Online_Retail.csv /Assignment3/data\n\t\thadoop fs -chmod 777 /Assignment3\n\n\tAssignment 3 : end\n\nJupyter Docker:\n\n\tdocker run -it --rm --net BDA-net --add-host 'quickstart.cloudera:172.18.0.2' --privileged=true -p 8889:8888 -p 4040:4040 -v /Users/krishna/BDA03/AllSpark_Workspace:/home/jovyan/workspace jupyter/all-spark-notebook /bin/bash\n\n\trun 'jupyter notebook'\n\n--rm : removes the instance as we quit the docker (easy maintenance)\n-it : interactive shell?\n-v : mounts local volume to docker's local folder\n-p : port to expose (host:docker)\n\nSpark Edx:\ndocker run -it --rm -p 8808:8888 --network BDA-net -v /Users/krishna/BDA03/MOOC/BDA_with_Spark:/home/ucsddse230/work ucsddse230/cse255-dse230 /bin/bash\n\nRemove exited images\ndocker rm $(docker ps -a -q -f status=exited)\n\n\n\nkeygen",
-			"file": "/Users/krishna/BDA03/Docker-setup/Docker_Commands",
-			"file_size": 1852,
-			"file_write_time": 131954684699872922,
-			"settings":
-			{
-				"buffer_size": 1852,
+				"buffer_size": 8495,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "/Users/krishna/Softwares/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \\\n  --class \"com.krishna.AppTest.SimpleApp\" \\\n  --master local[*] \\\n  /Users/krishna/BDA03/SBT_Code/AppTest/target/scala-2.11/simple-project_2.11-1.0.jar",
-			"settings":
-			{
-				"buffer_size": 221,
-				"line_ending": "Unix",
-				"name": "/Users/krishna/Softwares/spark-2.4.0-bin-hadoop2.7"
 			}
 		}
 	],
@@ -90,10 +67,14 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/krishna/BDA03/SBT_Code/IIM"
+		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM"
 	],
 	"file_history":
 	[
+		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM/build.sbt",
+		"/Users/krishna/BDA03/Docker-setup/Docker_Commands",
+		"/Users/krishna/BDA03/Docker-setup/docker-compose.yml",
+		"/Users/krishna/BDA03/Final-Project/Discussion_text",
 		"/Users/krishna/BDA03/Docker-compose-commands",
 		"/Users/krishna/BDA03/Docker_Commands",
 		"/Users/krishna/BDA03/CDH-Docker/Commands",
@@ -148,29 +129,29 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "/Users/krishna/BDA03/Docker-setup/docker-compose.yml",
+					"file": "src/main/scala/com/bda/tivo/mthota/ProgramFilter.scala",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1957,
+						"buffer_size": 4662,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1423,
-								1442
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/YAML/YAML.sublime-syntax",
+							"syntax": "Packages/Scala/Scala.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
@@ -183,115 +164,62 @@
 				},
 				{
 					"buffer": 1,
+					"file": "src/main/scala/com/bda/tivo/utils/commonUtils.scala",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 967,
+						"buffer_size": 6624,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								967,
-								967
+								612,
+								612
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/YAML/YAML.sublime-syntax"
+							"syntax": "Packages/Scala/Scala.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/Users/krishna/BDA03/Final-Project/Discussion_text",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1163,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								588,
-								588
-							]
-						],
-						"settings":
-						{
-							"auto_name": "Objective :",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 24.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "/Users/krishna/BDA03/Docker-setup/Docker_Commands",
+					"buffer": 2,
+					"file": "src/main/scala/com/bda/tivo/krishna/SimpleApp.scala",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1852,
+						"buffer_size": 8495,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								633,
-								633
+								1222,
+								1222
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/Scala/Scala.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 221,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								221,
-								221
-							]
-						],
-						"settings":
-						{
-							"auto_name": "/Users/krishna/Softwares/spark-2.4.0-bin-hadoop2.7",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -374,7 +302,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 394.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
