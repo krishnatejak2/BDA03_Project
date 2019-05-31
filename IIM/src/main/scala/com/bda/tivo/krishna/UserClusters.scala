@@ -80,7 +80,7 @@ object UserClusters {
  		group by 
  			W.SK_DEVICE_ID
         """)
-    Logger.logInfo("Joining WATCH and PROGRAM info...Done")
+    Logger.logInfo("Joining WATCH and PROGRAM info...Done") 
 
     println( "Schema of PROGRAM_WATCH : After joining PROGRAM & WATCH info" )
     program_watch_data.printSchema()   
