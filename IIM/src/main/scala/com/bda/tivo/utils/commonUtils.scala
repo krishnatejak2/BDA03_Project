@@ -8,10 +8,12 @@ object commonUtils{
 
   val raw_path_channel_data = "/user/bda03tivo/channel/*"
   val raw_path_program_data = "/user/bda03tivo/partitioned/program/CorrectFile2018/parquet/"
+  val raw_path_program_data_with_prev_prog = "/user/bda03tivo/partitioned/program/parquetwithprev/"
   val raw_path_campaign_program_data = "/Users/mthota/Dropbox/Data/Data/CAMPAIGN_PROGRAM/parquet/"
   val raw_path_device_data = "/user/bda03tivo/Device/"
   val raw_path_ads_data=""
   val raw_path_campaign_data="/Users/mthota/Dropbox/Data/Data/Campaign/"
+  val raw_path_cluster_output_data = "/user/bda03tivo/Output/clusterdata/"
 
   val partitioned_path_channel_data="/user/bda03tivo/partitioned/channel/"
   val partitioned_path_ads_data=""

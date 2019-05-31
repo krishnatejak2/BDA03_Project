@@ -2,8 +2,8 @@
 [0m[[0m[0mdebug[0m] [0m[0mInput file mappings:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/krishna/AppTest[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/krishna/AppTest[0m
-[0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/krishna/ChannelPartition$$typecreator2$1.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/krishna/ChannelPartition$$typecreator2$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/krishna/UserClusters.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/krishna/UserClusters.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$anonfun$2.class[0m
@@ -14,6 +14,8 @@
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter$$typecreator10$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda[0m
+[0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/krishna/UserClusters$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/krishna/UserClusters$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$typecreator2$1.class[0m
@@ -28,8 +30,6 @@
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/RepartitionData$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$typecreator20$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter$$typecreator20$1.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/krishna/ChannelPartition$$typecreator1$1.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/krishna/ChannelPartition$$typecreator1$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$anonfun$13.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter$$anonfun$13.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$typecreator18$1.class[0m
@@ -68,8 +68,6 @@
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter$$typecreator7$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/krishna/Logger.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/krishna/Logger.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/krishna/ChannelPartition$$anonfun$main$1.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/krishna/ChannelPartition$$anonfun$main$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$typecreator9$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	  /Users/krishna/Documents/GitHub/BDA03_Project/IIM/target/scala-2.10/classes/com/bda/tivo/mthota/ProgramFilter$$typecreator9$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	com/bda/tivo/mthota/ProgramFilter$$anonfun$3.class[0m

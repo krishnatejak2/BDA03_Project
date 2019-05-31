@@ -3,6 +3,10 @@
 	{
 		"selected_items":
 		[
+			[
+				"PRO",
+				"PROGRAM_ID"
+			]
 		]
 	},
 	"buffers":
@@ -11,7 +15,27 @@
 			"file": "src/main/scala/com/bda/tivo/mthota/ProgramFilter.scala",
 			"settings":
 			{
-				"buffer_size": 4662,
+				"buffer_size": 6004,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "package com.bda.tivo.krishna\n\nimport com.bda.tivo.utils.commonUtils\nimport org.apache.spark.{SparkConf, SparkContext}\nimport org.apache.spark.sql.functions.udf\nimport org.apache.spark.sql.hive.HiveContext\nimport org.apache.spark.sql.expressions.Window\n// import org.apache.spark.SparkContext\n// import org.apache.spark.SparkContext._\n// import org.apache.spark.SparkConf\n\nimport org.apache.log4j.{Level, LogManager, PropertyConfigurator}\nimport org.apache.spark._\nimport org.apache.spark.rdd.RDD\n\nobject Logger{\n  def methodName() = Thread.currentThread().getStackTrace()(3).getMethodName\n  val log = LogManager.getRootLogger\n  val header = \"Your project Description\"\n  def logInfo(msg: String= \"\")= if(msg.length > 0) log.info(String.format(\"(%s) - %s\", methodName(), msg)) else log.info(\"\")\n  def logDebug(msg: String= \"\")= if(msg.length > 0) log.debug(String.format(\"(%s) - %s\", methodName(), msg)) else log.debug(\"\")\n  def logWarn(msg: String= \"\")= if(msg.length > 0) log.warn(String.format(\"(%s) - %s\", methodName(), msg)) else log.warn(\"\")\n  def logError(msg: String= \"\")= if(msg.length > 0) log.error(String.format(\"(%s) - %s\", methodName(), msg)) else log.error(\"\")\n  def title = log.warn(header)\n}\n\n\nobject ChannelPartition {\n\n  def main(args: Array[String]) {\n\n  \tLogger.logInfo(\"Successfully created Spark Configuration Object\")\n\t\n    /********* SPark Config ********/\n    // val conf = new SparkConf().setAppName(\"channel-data-app\")\t//new configuration\n    val conf = new SparkConf().setAppName(\"bda03tivo-channelApp\") //new configuration\n\tval sc = new SparkContext(conf)\t// new SparkContext\n\t\n    Logger.logInfo(\"Successfully created Spark Context\")\n\t\n    val sqlContext = new org.apache.spark.sql.SQLContext(sc) // SQLContext\n    import sqlContext.implicits._ // changes RDD to DF\n    //import org.apache.spark.sql.expressions.Window\n    \n    Logger.logInfo(\"Reading the PROGRAM file...\")\n        val raw_program_data = sqlContext.read.parquet(commonUtils.raw_path_program_data_with_prev_prog)\n        raw_program_data.registerTempTable(\"PROGRAM\")\n        raw_program_data.printSchema()                \n    Logger.logInfo(\"Reading the Program file...Done\")\n    \n    Logger.logInfo(\"Reading the DEVICE file...\")\n        val raw_device_data = sqlContext.read.parquet(commonUtils.raw_path_device_data)\n        raw_device_data.registerTempTable(\"DEVICE\")\n        raw_device_data.printSchema()      \n    Logger.logInfo(\"Reading the DEVICE file...Done\")\n\n    Logger.logInfo(\"Reading the Channel file for All Months...\")\n        val raw_channel_data = sqlContext.read.parquet(commonUtils.raw_path_channel_data)\n        raw_channel_data.registerTempTable(\"WATCH\")\n        raw_channel_data.printSchema()        \n    Logger.logInfo(\"Reading the Channel file for All Months...Done\")    \n\n    Logger.logInfo(\"Joining WATCH and DEVICE info...\")\n    val device_watch_df = sqlContext.sql(\n        \"\"\"\n        select \n            W.*, \n            D.TIME_ZONE, \n            D.SK_SYSTEM_ID\n        from \n            WATCH W\n            left join \n            DEVICE D \n            on W.SK_DEVICE_ID = D.SK_DEVICE_ID\n        \"\"\")\n    Logger.logInfo(\"Joining WATCH and DEVICE info...Done\")\n\n    println( \"Schema of DEVICE_WATCH : After joining DEVICE & WATCH info\" )\n    device_watch_df.printSchema()   \n    device_watch_df.show()\n    // device_watch_df.persist()\n    device_watch_df.registerTempTable(\"DEVICE_WATCH_TABLE\")\n    println(\"Device_Watch Count:\" )\n    println(device_watch_df.count())\n\n    //sqlContext.udf.register(\"add_seconds\", (datetime : java.sql.Timestamp, seconds : Int) => {new java.sql.Timestamp(datetime.getTime() + seconds*1000 )});\n\n    Logger.logInfo(\"Selecting columns from Program...\")\n    val program_select_df = sqlContext.sql(\n        \"\"\"\n            select \n                P.PROGRAM_ID,\n                P.PARENT_PROGRAM_ID,\n                P.MASTER_TITLE,\n                P.CATEGORY_ID,\n                P.SUBCATEGORY_ID,\n                P.RELEASE_YEAR,\n                P.SERIES_MASTER_YN,\n                P.RUNTIME,\n                P.EVENT_DATE,\n                P.EPISODE_NUMBER,\n                P.EPISODE_TITLE,\n                P.ORIGINAL_ADT,\n                P.PROGRAM_EPISODE_RANK,\n                P.PREV_PROGRAM_ID,\n                cast(\n                    case when P.ORIGINAL_ADT in ('NULL') then \n                        (case when P.EVENT_DATE in ('NULL') then null else P.EVENT_DATE end)\n                    else P.ORIGINAL_ADT end as TIMESTAMP\n                ) as PROGRAM_STARTTIME\n            from \n                PROGRAM P \n            where\n                EVENT_DATE <> 'NULL' and EVENT_DATE >= '2018-01-01'\n                \n        \"\"\")\n    Logger.logInfo(\"Selecting columns from Program...Done\")\n   \n    println( \"Schema of PROGRAM Data: After some changes\" )\n    program_select_df.printSchema()      \n    program_select_df.show()\n    // program_select_df.persist()\n    program_select_df.registerTempTable(\"PROGRAM_TABLE\")\n    println( \"Program Count:\" )\n    println(program_select_df.count())\n\n\n    Logger.logInfo(\"Selecting columns from Channel...\")\n    val watch_select_df = sqlContext.sql(\n        \"\"\"\n                select \n                     *, \n                     DATE_FORMAT( CAST( UNIX_TIMESTAMP(cast(EVENT_DATE as string),'yyyyMMdd') as TIMESTAMP ), 'yyyy-MM-dd'  ) as EVENT_DATE_DATEFORMAT,\n                     concat_ws(':', cast(floor(EVENT_TIME/3600) as string), cast (floor((EVENT_TIME % 3600)/60) as string), cast(floor((EVENT_TIME % 60))as string) ) as TIME_CONCAT,\n                     CASE WHEN SURFTIME <= 300 then 1 else 0 end as SURFTIME_VIEWER\n                 from \n                    DEVICE_WATCH_TABLE\n                where\n                    EVENT_DATE >= 20180101 and \n                    EVENT_DATE <= 20181231\n        \"\"\")\n    Logger.logInfo(\"Selecting columns from Channel...Done\")\n\n    println( \"Schema of WATCH Data: After some changes\" )\n    watch_select_df.printSchema()      \n    watch_select_df.show()\n    // watch_select_df.persist()\n    watch_select_df.registerTempTable(\"WATCH_TABLE\")\n    println( \"Watch Count:\" )\n    println(watch_select_df.count())\n\n\n    Logger.logInfo(\"Selecting columns from JOIN...\")\n    val join_data_df = sqlContext.sql(\n        \"\"\"\n        select \n            P.PROGRAM_ID,\n            P.PARENT_PROGRAM_ID,\n            P.MASTER_TITLE,\n            P.CATEGORY_ID,\n            P.SUBCATEGORY_ID,\n            P.RELEASE_YEAR,\n            P.SERIES_MASTER_YN,\n            P.RUNTIME,\n            P.EVENT_DATE,\n            P.EPISODE_NUMBER,\n            P.EPISODE_TITLE,\n            P.PROGRAM_EPISODE_RANK,\n            P.PREV_PROGRAM_ID,\n\n            sum(CH.SURFTIME_VIEWER) as NO_OF_SURF_VIEWERS,\n            -- sum(case when CH.DURATION > 0.7*P.RUNTIME then 1 else 0 end) as NO_OF_FULL_SHOW_VIEWERS,\n            count(distinct CH.SK_DEVICE_ID) as PREV_NO_WATCHERS,\n            avg(CH.SURFTIME) as PREV_AVG_SURF_TIME,\n            avg(CH.DURATION)/3600 as PREV_AVG_DURATION_HRS\n\n        from \n            PROGRAM_TABLE P\n            left join\n            WATCH_TABLE CH\n            on \n            CH.PROGRAM_ID = P.PREV_PROGRAM_ID\n            \n        group by \n            P.PROGRAM_ID,\n            P.PARENT_PROGRAM_ID,\n            P.MASTER_TITLE,\n            P.CATEGORY_ID,\n            P.SUBCATEGORY_ID,\n            P.RELEASE_YEAR,\n            P.SERIES_MASTER_YN,\n            P.RUNTIME,\n            P.EVENT_DATE,\n            P.EPISODE_NUMBER,\n            P.EPISODE_TITLE,\n            P.PROGRAM_EPISODE_RANK,\n            P.PREV_PROGRAM_ID            \n        \"\"\")\n    Logger.logInfo(\"Selecting columns from JOIN...Done\")\n\n    println( \"Schema of FINAL JOIN Data :\" )\n    join_data_df.printSchema()\n    join_data_df.show()\n    // join_data_df.cache()\n    // join_data_df.registerTempTable(\"JOIN_DATA_TABLE\") // register as temptable\n    println( \"JOIN Count:\" )\n    println(join_data_df.count())\n\n\n    join_data_df.repartition(1)\n      .write\n      .mode(saveMode = \"Overwrite\")\n      .option(\"header\", \"true\")\n      .parquet(commonUtils.partitioned_path_channel_data+\"parquet/\")\n    //read_data.write.format.csv(\"ads.csv\")\n    //read_data.write.format(\"com.databricks.spark.csv\").save(\"/user/bda03tivo/ads_feb_test/mydata.csv\")\n    Logger.logInfo(\"Stopping SparkContext...\")\n    sc.stop()\n    Logger.logInfo(\"Stopping SparkContext...Done\")\n  }\n}\n\n",
+			"file": "src/main/scala/com/bda/tivo/krishna/ChannelPartition.scala",
+			"file_size": 8340,
+			"file_write_time": 132032514912119888,
+			"settings":
+			{
+				"buffer_size": 8358,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "build.sbt",
+			"settings":
+			{
+				"buffer_size": 331,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
@@ -19,18 +43,8 @@
 			"file": "src/main/scala/com/bda/tivo/utils/commonUtils.scala",
 			"settings":
 			{
-				"buffer_size": 6624,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "package com.bda.tivo.krishna\n\nimport org.apache.spark.SparkContext\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.SparkConf\n\nimport org.apache.log4j.{Level, LogManager, PropertyConfigurator}\nimport org.apache.spark._\nimport org.apache.spark.rdd.RDD\n\nobject Logger{\n  def methodName() = Thread.currentThread().getStackTrace()(3).getMethodName\n  val log = LogManager.getRootLogger\n  val header = \"Your project Description\"\n  def logInfo(msg: String= \"\")= if(msg.length > 0) log.info(String.format(\"(%s) - %s\", methodName(), msg)) else log.info(\"\")\n  def logDebug(msg: String= \"\")= if(msg.length > 0) log.debug(String.format(\"(%s) - %s\", methodName(), msg)) else log.debug(\"\")\n  def logWarn(msg: String= \"\")= if(msg.length > 0) log.warn(String.format(\"(%s) - %s\", methodName(), msg)) else log.warn(\"\")\n  def logError(msg: String= \"\")= if(msg.length > 0) log.error(String.format(\"(%s) - %s\", methodName(), msg)) else log.error(\"\")\n  def title = log.warn(header)\n}\n\n\nobject ChannelCalculation {\n\n  def main(args: Array[String]) {\n\n  \tLogger.logInfo(\"Successfully created Spark Configuration Object\")\n\t/********* SPark Config ********/\n    val conf = new SparkConf().setAppName(\"Simple Application\")\t//new configuration\n\tval sc = new SparkContext(conf)\t// new SparkContext\n\tLogger.logInfo(\"Successfully created Spark Context\")\n\tval sqlContext = new org.apache.spark.sql.SQLContext(sc) // SQLContext\n\n    import sqlContext.implicits._ // changes RDD to DF\n\n\t   Logger.logInfo(\"Reading the Channel file for January...\")\n    val channel_jan_location = \"/user/bda03tivo/channel/*\" // HDFS location\n    val channel_jan_data = sqlContext.read.load(channel_jan_location)\n    Logger.logInfo(\"Reading the Channel file for January...Done\")\n    \n    Logger.logInfo(\"Reading the Program file...\")\n    val program_location = \"/user/bda03tivo/Metadata/Program/Parquet/part-00000-17ccaa90-2d2e-4467-8920-56d97a96c4b8-c000.snappy.parquet\"\n\n   /****** Spark Read******/\n    val program_data = sqlContext.read.parquet(program_location)\n    Logger.logInfo(\"Reading the Program file...Done\")\n\n    channel_jan_data.registerTempTable(\"CHANNEL_JAN\") // register as temptable\n    program_data.registerTempTable(\"PROGRAM\") // register as temptable\n    \n    //print schema\n    println( \"Schema of CHANNEL Data: \" )\n    channel_jan_data.printSchema()\n\n    println( \"Schema of PROGRAM Data: \" )\n    program_data.printSchema()\n    \n    //read data from temptable to dataframe\n    \n\t//val read_data = program_data\n\t//.select($\"PROGRAM_ID\",$\"RUNTIME\",$\"PARENT_PROGRAM_ID\")\n\t//.withColumn(\"PARENT_PROGRAM_ID\", when($\"PARENT_PROGRAM_ID\" ==='NULL', 0).otherwise($\"PARENT_PROGRAM_ID\"))\n\t//.filter($\"PARENT_PROGRAM_ID\" !== \"NULL\")\n\n    // read_data.registerTempTable(\"FINAL_DATA\") // register as temptable\n    \n    //show the table data\n    //println( \"Show top records : \" )\n    /****** Spark SQL*********/\n    Logger.logInfo(\"Selecting columns from Program...\")\n    val PROGRAM_SELECT = sqlContext.sql(\n    \t\"\"\"\n    \tselect \n\t    P.PROGRAM_ID,\n\t    P.PARENT_PROGRAM_ID,\n\t    P.MASTER_TITLE,\n\t    P.CATEGORY_ID,\n\t    P.SUBCATEGORY_ID,\n\t    P.RELEASE_YEAR,\n\t    P.SERIES_MASTER_YN,\n\t    P.RUNTIME,\n\t    P.EVENT_DATE,\n\t    P.EPISODE_NUMBER,\n\t    P.EPISODE_TITLE,\n\t    P.ORIGINAL_ADT\n\t    from \n    \t\tPROGRAM P \n    \twhere\n    \tEVENT_DATE >= '2017-12-31' and \n\t    EVENT_DATE <= '2019-01-01'  \n\t    -- and PARENT_PROGRAM_ID not in  ('NULL')\n\n    \t\"\"\")\n    Logger.logInfo(\"Selecting columns from Program...Done\")\n    PROGRAM_SELECT.registerTempTable(\"PROGRAM_SELECT_TABLE\") // register as temptable\n\n\t//println( \"Show top records : CHANNEL_JAN\" )\n    //sqlContext.sql(\"select * from CHANNEL_JAN\").show()\n\n    //println( \"Show top records : \" )\n    Logger.logInfo(\"Selecting columns from Channel...\")\n    val CHANNEL_JAN_SELECT = sqlContext.sql(\n    \t\"\"\"\n\t\t select *, \n\t\t CASE WHEN SURFTIME <= 300 then 1 else 0 end as SURFTIME_VIEWER\n\t\t from \n\t    \tCHANNEL_JAN\n\t    where\n\t    \tEVENT_DATE >= 20171231 and \n\t\t    EVENT_DATE <= 20190101\n\n    \t\"\"\")\n\t\n\t//import org.apache.spark.sql.expressions.Window\n\t//val surf_part = Window.partitionBy('PROGRAM_ID).orderBy('SURFTIME_VIEWER.desc)\n\t//val CHANNEL_JAN_SELECT = CHANNEL_JAN_SELECT_FIRST.select('*, sum('SURFTIME_VIEWER) over surf_part as \"NO_OF_SURF_VIEWERS\")\n\n    Logger.logInfo(\"Selecting columns from Channel...Done\")\n\tCHANNEL_JAN_SELECT.registerTempTable(\"CHANNEL_JAN_SELECT_TABLE\") // register as temptable\n\n\t//print sql output\n\tprintln( \"ACTIVITY_WATCH_INFO: \" )\n    sqlContext.sql(\"\"\"\n    \tSELECT * from CHANNEL_JAN_SELECT_TABLE\n    \t\"\"\").show()\n\n\t//print sql output\n\tprintln( \"PROGRAM_INFO: \" )\n    sqlContext.sql(\"\"\"\n    \tSELECT 'PROGRAM_ALL' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from PROGRAM\n    \tunion\n    \tSELECT 'PROGRAM_2018' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from PROGRAM_SELECT_TABLE\n    \t\"\"\").show()\n\n\t//print sql output\n\tprintln( \"CHANNEL_INFO : \" )\n    sqlContext.sql(\"\"\"\n    \tSELECT 'WATCH_ALL' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from CHANNEL_JAN\n    \tunion\n    \tSELECT 'WATCH_2018' as TYPE,count(distinct PROGRAM_ID) as PROGRAM_COUNT from CHANNEL_JAN_SELECT_TABLE\n    \t\"\"\").show()\n    \n    //joining the data to form some calculated columns\n\t//println( \"Show top records for JOIN: \" )\n    Logger.logInfo(\"Selecting columns from JOIN...\")\n    val JOIN_DATA_SELECT = sqlContext.sql(\n    \t\"\"\"\n    \tselect \n\t\t    P.PROGRAM_ID,\n\t\t    P.PARENT_PROGRAM_ID,\n\t\t    P.MASTER_TITLE,\n\t\t    P.CATEGORY_ID,\n\t\t    P.SUBCATEGORY_ID,\n\t\t    P.RELEASE_YEAR,\n\t\t    P.SERIES_MASTER_YN,\n\t\t    P.RUNTIME,\n\t\t    P.EVENT_DATE,\n\t\t    P.EPISODE_NUMBER,\n\t\t    P.EPISODE_TITLE,\n\t\t    P.ORIGINAL_ADT,\n\n\t\t    sum(CH.SURFTIME_VIEWER) as NO_OF_SURF_VIEWERS,\n\t    \tsum(case when CH.DURATION > 0.7*P.RUNTIME then 1 else 0 end) as NO_OF_FULL_SHOW_VIEWERS,\n\t    \tcount(distinct CH.SK_DEVICE_ID) as NO_WATCHERS,\n\t    \tavg(CH.SURFTIME) as AVG_SURF_TIME,\n\t    \tmin(CH.EVENT_DATE) as MIN_EVENT_DATE,\n\t\t\tmax(CH.EVENT_DATE) as MAX_EVENT_DATE,\n\t\t\tavg(CH.DURATION)/3600 as AVG_DURATION_HRS\n\n\t    from \n\t    \tPROGRAM_SELECT_TABLE P\n\t    \tjoin\n    \t\tCHANNEL_JAN_SELECT_TABLE CH\n    \t\ton \n    \t\tP.PROGRAM_ID = CH.PROGRAM_ID and\n    \t\tcast(P.EVENT_DATE as DATE) = CH.EVENT_DATE \n    \tgroup by \n\t    \tP.PROGRAM_ID,\n\t\t    P.PARENT_PROGRAM_ID,\n\t\t    P.MASTER_TITLE,\n\t\t    P.CATEGORY_ID,\n\t\t    P.SUBCATEGORY_ID,\n\t\t    P.RELEASE_YEAR,\n\t\t    P.SERIES_MASTER_YN,\n\t\t    P.RUNTIME,\n\t\t    P.EVENT_DATE,\n\t\t    P.EPISODE_NUMBER,\n\t\t    P.EPISODE_TITLE,\n\t\t    P.ORIGINAL_ADT\n\t    \"\"\")\n    Logger.logInfo(\"Selecting columns from JOIN...Done\")\n    JOIN_DATA_SELECT.registerTempTable(\"JOIN_DATA_SELECT_TABLE\") // register as temptable\n\n    \n    println( \"Show top records - JOIN_INFO : \" )\n    sqlContext.sql(\n    \t\"\"\"\n    \tselect \n    \t\tPROGRAM_ID,\n    \t\tPARENT_PROGRAM_ID,\n    \t\tMASTER_TITLE,\n    \t\tCATEGORY_ID,\n    \t\tSUBCATEGORY_ID\n    \t\tRUNTIME,\n    \t\tORIGINAL_ADT,\n    \t\tNO_OF_SURF_VIEWERS,\n    \t\tNO_OF_FULL_SHOW_VIEWERS,\n    \t\tNO_WATCHERS,\n    \t\tAVG_SURF_TIME,\n    \t\tMIN_EVENT_DATE,\n    \t\tMAX_EVENT_DATE,\n    \t\tAVG_DURATION_HRS\n    \tfrom \n    \t\tJOIN_DATA_SELECT_TABLE \n    \torder by \n    \t\tNO_WATCHERS DESC\n    \t\"\"\").show()\n\n\n    sqlContext.sql(\n    \t\"\"\"\n    \tselect \n    \t\t*\n    \tfrom \n    \t\tJOIN_DATA_SELECT_TABLE\n    \t\"\"\").coalesce(1).write.format(\"parquet\").mode(\"append\").save(\"hdfs://bigdatalab/user/bda03tivo/Output/JOIN_RESULT_ALL_3.parquet\")\n\t\n\n\n    println( \"JOIN_PROGRAM_CHANNEL_INFO : \" )\n    sqlContext.sql(\"\"\"\n    \tselect 'TOTAL_RECORD_COUNT' as TYPE,count(*) as COUNT from JOIN_DATA_SELECT_TABLE\n    \tunion\n    \tselect 'DISTINCT_PROGRAM_AFTER_JOIN' as TYPE,count(distinct PROGRAM_ID) as COUNT from JOIN_DATA_SELECT_TABLE\n    \t\"\"\").show()\n\n\n    println( \"DIFFERENT CHANNEL INFO : \" )\n    sqlContext.sql(\"\"\"\n    \tselect DISTINCT CH.PROGRAM_ID \n    \tfrom CHANNEL_JAN_SELECT_TABLE CH \n    \tleft join PROGRAM_SELECT_TABLE P\n    \ton CH.PROGRAM_ID = P.PROGRAM_ID\n    \twhere P.PROGRAM_ID is null\n    \t\"\"\").show()\n\n    println( \"DIFFERENT CHANNEL INFO - COUNT : \" )\n    sqlContext.sql(\"\"\"\n    \tselect count(DISTINCT CH.PROGRAM_ID)\n    \tfrom CHANNEL_JAN_SELECT_TABLE CH \n    \tleft join PROGRAM_SELECT_TABLE P\n    \ton CH.PROGRAM_ID = P.PROGRAM_ID\n    \twhere P.PROGRAM_ID is null\n    \t\"\"\").show()\n\n    //read_data.write.format.csv(\"ads.csv\")\n    //read_data.write.format(\"com.databricks.spark.csv\").save(\"/user/bda03tivo/ads_feb_test/mydata.csv\")\n    Logger.logInfo(\"Stopping SparkContext...\")\n    sc.stop()\n    Logger.logInfo(\"Stopping SparkContext...Done\")\n  }\n}",
-			"file": "src/main/scala/com/bda/tivo/krishna/SimpleApp.scala",
-			"file_size": 8477,
-			"file_write_time": 132004006260683119,
-			"settings":
-			{
-				"buffer_size": 8495,
+				"buffer_size": 6944,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		}
@@ -67,15 +81,17 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM"
+		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM",
+		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM/project"
 	],
 	"file_history":
 	[
-		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM/build.sbt",
 		"/Users/krishna/BDA03/Docker-setup/Docker_Commands",
-		"/Users/krishna/BDA03/Docker-setup/docker-compose.yml",
-		"/Users/krishna/BDA03/Final-Project/Discussion_text",
 		"/Users/krishna/BDA03/Docker-compose-commands",
+		"/Users/krishna/BDA03/Final-Project/Discussion_text",
+		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/SimpleApp.scala",
+		"/Users/krishna/Documents/GitHub/BDA03_Project/IIM/build.sbt",
+		"/Users/krishna/BDA03/Docker-setup/docker-compose.yml",
 		"/Users/krishna/BDA03/Docker_Commands",
 		"/Users/krishna/BDA03/CDH-Docker/Commands",
 		"/Users/krishna/BDA03/pandoc",
@@ -93,11 +109,11 @@
 	],
 	"find":
 	{
-		"height": 24.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 101.0,
 		"where_history":
 		[
 		]
@@ -129,7 +145,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -138,7 +154,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4662,
+						"buffer_size": 6004,
 						"regions":
 						{
 						},
@@ -159,54 +175,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "src/main/scala/com/bda/tivo/utils/commonUtils.scala",
+					"file": "src/main/scala/com/bda/tivo/krishna/ChannelPartition.scala",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6624,
+						"buffer_size": 8358,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								612,
-								612
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Scala/Scala.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 24.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/main/scala/com/bda/tivo/krishna/SimpleApp.scala",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 8495,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1222,
-								1222
+								4268,
+								4268
 							]
 						],
 						"settings":
@@ -216,10 +202,68 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
+						"translation.y": 1128.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "build.sbt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 331,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								206,
+								218
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Scala/Scala.sublime-syntax"
+						},
+						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/main/scala/com/bda/tivo/utils/commonUtils.scala",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6944,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1286,
+								1286
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Scala/Scala.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -264,7 +308,7 @@
 	"project": "IIM-project.sublime-project",
 	"replace":
 	{
-		"height": 44.0
+		"height": 70.0
 	},
 	"save_all_on_build": true,
 	"select_file":
