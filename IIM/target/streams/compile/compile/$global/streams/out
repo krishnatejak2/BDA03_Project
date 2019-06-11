@@ -1,8 +1,79 @@
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.ToString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.ToString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.ToString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0mClass org.joda.convert.FromString not found - continuing with a stub.[0m
-[0m[[0m[33mwarn[0m] [0m[0m7 warnings found[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:29:2: Missing closing brace `}' assumed here[0m
+[0m[[0m[31merror[0m] [0m[0m	val sc = new SparkContext(conf)	// new SparkContext[0m
+[0m[[0m[31merror[0m] [0m[0m	^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:31:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Successfully created Spark Context")[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:33:2: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m	val sqlContext = new org.apache.spark.sql.SQLContext(sc) // SQLContext[0m
+[0m[[0m[31merror[0m] [0m[0m	^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:36:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Reading the PROGRAM file...")[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:37:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        val raw_program_data = sqlContext.read.parquet(commonUtils.raw_path_program_data_with_prev_prog)[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:38:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        raw_program_data.registerTempTable("PROGRAM")[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:39:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        raw_program_data.printSchema()                [0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:40:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Reading the Program file...Done")[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:42:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Reading the DEVICE file...")[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:43:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        val raw_device_data = sqlContext.read.parquet(commonUtils.raw_path_device_data)[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:44:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        raw_device_data.registerTempTable("DEVICE")[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:45:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        raw_device_data.printSchema()      [0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:46:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Reading the DEVICE file...Done")[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:48:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Reading the Channel file for All Months...")[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:49:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        val raw_channel_data = sqlContext.read.parquet(commonUtils.raw_path_channel_data)[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:50:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        raw_channel_data.registerTempTable("WATCH")[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:51:9: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m        raw_channel_data.printSchema()        [0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:52:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Reading the Channel file for All Months...Done")    [0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:54:2: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m	Logger.logInfo("Joining WATCH and PROGRAM info...")[0m
+[0m[[0m[31merror[0m] [0m[0m	^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:55:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    val program_watch_data = sqlContext.sql([0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:68:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    Logger.logInfo("Joining WATCH and PROGRAM info...Done") [0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:70:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    println( "Schema of PROGRAM_WATCH : After joining PROGRAM & WATCH info" )[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:71:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    program_watch_data.printSchema()   [0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:72:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    program_watch_data.show(50)[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:74:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    println("PROGRAM_WATCH Count:" )[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/krishna/Documents/GitHub/BDA03_Project/IIM/src/main/scala/com/bda/tivo/krishna/TestSelect.scala:75:5: expected class or object definition[0m
+[0m[[0m[31merror[0m] [0m[0m    println(program_watch_data.count())  [0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m26 errors found[0m
