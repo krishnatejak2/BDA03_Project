@@ -2,3 +2,5 @@ CTR in python  : https://github.com/dongwookim-ml/python-topic-model/blob/master
 LDA in detail : https://github.com/adashofdata/nlp-in-python-tutorial
 CF in python : http://www.albertauyeung.com/post/python-matrix-factorization/
 Working with Wiki : https://towardsdatascience.com/wikipedia-data-science-working-with-the-worlds-largest-encyclopedia-c08efbac5f5c
+
+https://github.com/david-cortes/ctpfrec - NIPS 2014 (better approach)
