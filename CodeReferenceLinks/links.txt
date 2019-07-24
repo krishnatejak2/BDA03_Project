@@ -4,3 +4,6 @@ CF in python : http://www.albertauyeung.com/post/python-matrix-factorization/
 Working with Wiki : https://towardsdatascience.com/wikipedia-data-science-working-with-the-worlds-largest-encyclopedia-c08efbac5f5c
 
 https://github.com/david-cortes/ctpfrec - NIPS 2014 (better approach)
+
+
+https://github.com/ChenBoSyun/implement-Collaborative-Deep-Learning-for-Recommender-Systems -- CDL with slides
